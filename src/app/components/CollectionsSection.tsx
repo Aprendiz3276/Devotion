@@ -1,0 +1,232 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Heart, Eye } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { loadProductsBySection, Product } from '../utils/productLoader';
+import { toast } from 'sonner';
+import { useCart } from '../context/CartContext';
+
+const defaultCollectionImages = [
+  'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=400',
+  'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400',
+  'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400',
+  'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=400',
+  'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400',
+];
+
+// Generate default products if admin hasn't created any
+const generateDefaultProducts = (collectionImages: string[]): any[] => {
+  const products: any[] = [];
+  const images = collectionImages.length > 0 ? collectionImages : defaultCollectionImages;
+
+  const names = [
+    'Conjunto Urbano', 'Set Deportivo', 'Kit Casual', 'Outfit Street',
+    'Conjunto Premium', 'Set Fashion', 'Kit Elegante', 'Outfit Modern',
+    'Conjunto Elite', 'Set Luxury'
+  ];
+
+  const adjectives = ['Negro', 'Gris', 'Azul', 'Beige', 'Carbón', 'Navy', 'Plata', 'Oscuro', 'Elegante', 'Premium'];
+
+  for (let i = 0; i < 10; i++) {
+    const hasDiscount = Math.random() > 0.7;
+    const basePrice = Math.floor(Math.random() * 100000) + 120000;
+
+    products.push({
+      id: `default-${i + 1}`,
+      name: `${names[i % names.length]} ${adjectives[i % adjectives.length]}`,
+      price: basePrice,
+      originalPrice: hasDiscount ? Math.floor(basePrice * 1.5) : undefined,
+      image: images[i % images.length],
+      colors: ['#3B82F6', '#000000', '#FFFFFF'].slice(0, Math.floor(Math.random() * 3) + 1),
+    });
+  }
+
+  return products;
+};
+
+export function CollectionsSection() {
+  const [hoveredCollection, setHoveredCollection] = useState<number | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const { addToCart } = useCart();
+
+  const loadCollectionProducts = () => {
+    // Try to load from admin products first
+    const adminProducts = loadProductsBySection('collections');
+    
+    if (adminProducts.length > 0) {
+      // Convert admin products to display format
+      const displayProducts = adminProducts.slice(0, 10).map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.originalPrice,
+        image: p.image,
+        colors: p.colors,
+      }));
+      setProducts(displayProducts);
+    } else {
+      // Load collection images for defaults
+      const savedImages = localStorage.getItem('siteImages');
+      let collectionImages: string[] = [];
+      
+      if (savedImages) {
+        try {
+          const images = JSON.parse(savedImages);
+          collectionImages = images
+            .filter((img: any) => img.category === 'collections')
+            .map((img: any) => img.currentImage);
+        } catch (error) {
+          console.error('Error loading collection images:', error);
+        }
+      }
+      
+      setProducts(generateDefaultProducts(collectionImages));
+    }
+  };
+
+  useEffect(() => {
+    loadCollectionProducts();
+    
+    // Listen for product updates
+    const handleProductsUpdated = () => {
+      loadCollectionProducts();
+    };
+    
+    const handleImagesUpdated = () => {
+      loadCollectionProducts();
+    };
+    
+    window.addEventListener('productsUpdated', handleProductsUpdated);
+    window.addEventListener('imagesUpdated', handleImagesUpdated);
+    
+    return () => {
+      window.removeEventListener('productsUpdated', handleProductsUpdated);
+      window.removeEventListener('imagesUpdated', handleImagesUpdated);
+    };
+  }, []);
+
+  const handleAddToCart = (product: any) => {
+    addToCart({
+      id: product.id.toString(),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    });
+    toast.success('¡Agregado al carrito!', {
+      description: product.name,
+    });
+  };
+
+  return (
+    <section id="colecciones" className="pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 lg:pb-16 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-6 sm:mb-8 md:mb-10"
+        >
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-3 md:mb-4" style={{ fontFamily: 'Cormorant, serif' }}>
+            Estilos Destacados
+          </h2>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">
+            Outfits completos para el hombre urbano y moderno
+          </p>
+        </motion.div>
+
+        {/* Products Grid - Responsive */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+          {products.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: index * 0.05 }}
+              onMouseEnter={() => setHoveredCollection(index)}
+              onMouseLeave={() => setHoveredCollection(null)}
+              className="bg-white rounded-lg sm:rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+            >
+              <div className="relative overflow-hidden aspect-square">
+                <ImageWithFallback
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                
+                {/* Overlay con acciones */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: hoveredCollection === index ? 1 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex flex-col items-center justify-end p-3 sm:p-4"
+                >
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                    <button className="p-2 sm:p-2.5 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg">
+                      <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                    <button className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg">
+                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Discount Badge */}
+                {product.originalPrice && (
+                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                    {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                  </div>
+                )}
+              </div>
+
+              <div className="p-2.5 sm:p-3 md:p-4">
+                <h3 className="text-xs sm:text-sm md:text-base mb-1.5 sm:mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
+                  {product.name}
+                </h3>
+                
+                {/* Colors */}
+                <div className="flex gap-1 mb-1.5 sm:mb-2">
+                  {product.colors.slice(0, 3).map((color: string, i: number) => (
+                    <div
+                      key={i}
+                      className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-200"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+
+                {/* Price */}
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <span className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
+                    ${product.price.toLocaleString()}
+                  </span>
+                  {product.originalPrice && (
+                    <span className="text-[10px] sm:text-xs text-gray-400 line-through">
+                      ${product.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {products.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No hay productos en esta sección aún.</p>
+            <p className="text-sm text-gray-400 mt-2">Los productos aparecerán aquí cuando los agregues desde el panel administrativo.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

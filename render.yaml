@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: premium-boutique-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.cjs
+    envVars:
+      - key: CLOUDINARY_CLOUD_NAME
+        scope: all
+      - key: CLOUDINARY_API_KEY
+        scope: all
+      - key: CLOUDINARY_API_SECRET
+        scope: all
+      - key: PORT
+        value: 4000
+        scope: all

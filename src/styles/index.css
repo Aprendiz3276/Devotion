@@ -1,0 +1,47 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Slick Carousel Custom Styles */
+.slick-dots {
+  bottom: -40px;
+}
+
+.slick-dots li button:before {
+  color: #F2D6E0;
+  font-size: 6px;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #F2D6E0;
+  opacity: 1;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent horizontal scrollbar */
+body, html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  position: relative;
+}
+
+/* Typography */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Hide any help/info widgets that might appear */
+[class*="help-button"],
+[class*="info-button"],
+[class*="HelpButton"],
+[id*="help-button"],
+[id*="info-button"] {
+  display: none !important;
+}
