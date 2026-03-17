@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Clock, ShoppingCart, Heart, Eye, Zap } from 'lucide-react';
+import { Clock, ShoppingCart, Heart, Eye, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ProductQuickView } from './ProductQuickView';
 import { toast } from 'sonner';
@@ -73,6 +73,60 @@ const defaultOfferProducts: Product[] = [
     discount: 50,
     stock: 25,
   },
+  {
+    id: 7,
+    name: 'Corbata Seda Premium',
+    price: 24900,
+    originalPrice: 49900,
+    image: 'https://images.unsplash.com/photo-1613521227604-1d6c7e1f0c9e?w=400',
+    discount: 50,
+    stock: 30,
+  },
+  {
+    id: 8,
+    name: 'Chaqueta Denim Lujo',
+    price: 79900,
+    originalPrice: 159900,
+    image: 'https://images.unsplash.com/photo-1601524909162-abeb2ced4da7?w=400',
+    discount: 50,
+    stock: 14,
+  },
+  {
+    id: 9,
+    name: 'Pantalón Slim Premium',
+    price: 54900,
+    originalPrice: 109900,
+    image: 'https://images.unsplash.com/photo-1542272604-787c62d465d1?w=400',
+    discount: 50,
+    stock: 18,
+  },
+  {
+    id: 10,
+    name: 'Bolso Elegante Cuero',
+    price: 94900,
+    originalPrice: 189900,
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400',
+    discount: 50,
+    stock: 11,
+  },
+  {
+    id: 11,
+    name: 'Reloj Clásico Elegante',
+    price: 149900,
+    originalPrice: 299900,
+    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400',
+    discount: 50,
+    stock: 7,
+  },
+  {
+    id: 12,
+    name: 'Abrigo Premium Invierno',
+    price: 134900,
+    originalPrice: 269900,
+    image: 'https://images.unsplash.com/photo-1539533057440-7814bae1ef51?w=400',
+    discount: 50,
+    stock: 9,
+  },
 ];
 
 export function OffersSection() {
@@ -80,6 +134,8 @@ export function OffersSection() {
   const [products, setProducts] = useState<Product[]>(defaultOfferProducts);
   const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
   const [showQuickView, setShowQuickView] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
 
   // Timer state
@@ -184,6 +240,27 @@ export function OffersSection() {
     setShowQuickView(true);
   };
 
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = 300;
+      const newPosition = direction === 'left' 
+        ? scrollPosition - scrollAmount 
+        : scrollPosition + scrollAmount;
+      
+      carouselRef.current.scrollTo({
+        left: newPosition,
+        behavior: 'smooth',
+      });
+      setScrollPosition(newPosition);
+    }
+  };
+
+  const handleScroll = () => {
+    if (carouselRef.current) {
+      setScrollPosition(carouselRef.current.scrollLeft);
+    }
+  };
+
   return (
     <section id="ofertas" className="pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 lg:pb-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -248,98 +325,123 @@ export function OffersSection() {
           </div>
         </motion.div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
-          {products.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: index * 0.05 }}
-              onMouseEnter={() => setHoveredOffer(index)}
-              onMouseLeave={() => setHoveredOffer(null)}
-              className="bg-white rounded-lg sm:rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 group cursor-pointer border-2 border-transparent hover:border-red-500"
-            >
-              <div className="relative overflow-hidden aspect-square">
-                <ImageWithFallback
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                
-                {/* Discount Badge */}
-                <div className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 rounded-lg text-xs sm:text-sm font-bold shadow-lg z-10">
-                  -{product.discount}%
+        {/* Products Carousel */}
+        <div className="relative">
+          {/* Carousel Container */}
+          <div
+            ref={carouselRef}
+            onScroll={handleScroll}
+            className="flex overflow-x-auto gap-4 pb-4 scroll-smooth snap-x snap-mandatory scrollbar-hide"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {products.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: index * 0.05 }}
+                onMouseEnter={() => setHoveredOffer(index)}
+                onMouseLeave={() => setHoveredOffer(null)}
+                className="flex-shrink-0 w-56 bg-white rounded-lg sm:rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 group cursor-pointer border-2 border-transparent hover:border-red-500 snap-center"
+              >
+                <div className="relative overflow-hidden aspect-square">
+                  <ImageWithFallback
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  
+                  {/* Discount Badge */}
+                  <div className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 rounded-lg text-xs sm:text-sm font-bold shadow-lg z-10">
+                    -{product.discount}%
+                  </div>
+
+                  {/* Stock Badge */}
+                  <div className="absolute top-2 right-2 bg-black/80 text-white px-2 py-1 rounded-lg text-[10px] sm:text-xs font-medium">
+                    {product.stock} disponibles
+                  </div>
+
+                  {/* Overlay Actions */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: hoveredOffer === index ? 1 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex flex-col items-center justify-end p-3 sm:p-4"
+                  >
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        onClick={(e) => handleAddToCart(product, e)}
+                        className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleAddToFavorites(product, e)}
+                        className="p-2 sm:p-2.5 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
+                      >
+                        <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleQuickView(product, e)}
+                        className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
+                      >
+                        <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
                 </div>
 
-                {/* Stock Badge */}
-                <div className="absolute top-2 right-2 bg-black/80 text-white px-2 py-1 rounded-lg text-[10px] sm:text-xs font-medium">
-                  {product.stock} disponibles
-                </div>
-
-                {/* Overlay Actions */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: hoveredOffer === index ? 1 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex flex-col items-center justify-end p-3 sm:p-4"
-                >
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      onClick={(e) => handleAddToCart(product, e)}
-                      className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => handleAddToFavorites(product, e)}
-                      className="p-2 sm:p-2.5 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
-                    >
-                      <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => handleQuickView(product, e)}
-                      className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
-                    >
-                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </button>
+                <div className="p-2.5 sm:p-3 md:p-4">
+                  <h3 className="text-xs sm:text-sm md:text-base mb-1.5 sm:mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
+                    {product.name}
+                  </h3>
+                  
+                  {/* Price */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-sm sm:text-base md:text-lg font-bold text-red-600">
+                        ${product.price.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-gray-400 line-through">
+                      ${product.originalPrice.toLocaleString()}
+                    </div>
                   </div>
-                </motion.div>
-              </div>
 
-              <div className="p-2.5 sm:p-3 md:p-4">
-                <h3 className="text-xs sm:text-sm md:text-base mb-1.5 sm:mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
-                  {product.name}
-                </h3>
-                
-                {/* Price */}
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <span className="text-sm sm:text-base md:text-lg font-bold text-red-600">
-                      ${product.price.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="text-[10px] sm:text-xs text-gray-400 line-through">
-                    ${product.originalPrice.toLocaleString()}
+                  {/* Progress Bar */}
+                  <div className="mt-2 sm:mt-3">
+                    <div className="bg-gray-200 rounded-full h-1.5 sm:h-2 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${Math.min((product.stock / 30) * 100, 100)}%` }}
+                        viewport={{ once: true }}
+                        className="bg-gradient-to-r from-red-500 to-orange-500 h-full rounded-full"
+                        transition={{ duration: 1, delay: index * 0.1 }}
+                      />
+                    </div>
                   </div>
                 </div>
+              </motion.div>
+            ))}
+          </div>
 
-                {/* Progress Bar */}
-                <div className="mt-2 sm:mt-3">
-                  <div className="bg-gray-200 rounded-full h-1.5 sm:h-2 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${Math.min((product.stock / 30) * 100, 100)}%` }}
-                      viewport={{ once: true }}
-                      className="bg-gradient-to-r from-red-500 to-orange-500 h-full rounded-full"
-                      transition={{ duration: 1, delay: index * 0.1 }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          {/* Navigation Buttons */}
+          <button
+            onClick={() => scrollCarousel('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full p-2 sm:p-3 shadow-lg transition-all transform hover:scale-110"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          <button
+            onClick={() => scrollCarousel('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full p-2 sm:p-3 shadow-lg transition-all transform hover:scale-110"
+            aria-label="Siguiente"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Empty State */}
