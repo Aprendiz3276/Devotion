@@ -3,15 +3,17 @@ import { X, ShoppingCart, Heart, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { toast } from 'sonner';
+import { useCart } from '../context/CartContext';
 
 interface Product {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
-  originalPrice: number;
+  originalPrice?: number;
   image: string;
-  discount: number;
-  stock: number;
+  discount?: number;
+  stock?: number;
+  colors?: string[];
 }
 
 interface ProductQuickViewProps {
@@ -23,12 +25,22 @@ interface ProductQuickViewProps {
 export function ProductQuickView({ product, isOpen = true, onClose }: ProductQuickViewProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('M');
+  const { addToCart } = useCart();
 
   if (!product) return null;
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+  const discount = product.discount || (product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0);
+  const stock = product.stock || 10;
 
   const handleAddToCart = () => {
+    addToCart({
+      id: product.id.toString(),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity,
+    });
     toast.success(`${product.name} agregado al carrito`, {
       description: `${quantity} unidad(es) - Talla ${selectedSize}`,
     });
@@ -82,9 +94,11 @@ export function ProductQuickView({ product, isOpen = true, onClose }: ProductQui
                     />
                   </div>
                   {/* Discount Badge */}
-                  <div className="absolute top-4 left-4 bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white px-4 py-2 rounded-full font-bold shadow-lg">
-                    -{product.discount}% OFF
-                  </div>
+                  {discount > 0 && (
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white px-4 py-2 rounded-full font-bold shadow-lg">
+                      -{discount}% OFF
+                    </div>
+                  )}
                 </div>
 
                 {/* Product Info */}
@@ -98,16 +112,18 @@ export function ProductQuickView({ product, isOpen = true, onClose }: ProductQui
                     <span className="text-3xl font-bold text-[#3B82F6]">
                       ${product.price.toLocaleString()}
                     </span>
-                    <span className="text-xl text-gray-400 line-through">
-                      ${product.originalPrice.toLocaleString()}
-                    </span>
+                    {product.originalPrice && (
+                      <span className="text-xl text-gray-400 line-through">
+                        ${product.originalPrice.toLocaleString()}
+                      </span>
+                    )}
                   </div>
 
                   {/* Stock */}
                   <div className="mb-6">
                     <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      {product.stock} unidades disponibles
+                      {stock} unidades disponibles
                     </div>
                   </div>
 
@@ -149,7 +165,7 @@ export function ProductQuickView({ product, isOpen = true, onClose }: ProductQui
                       </button>
                       <span className="text-xl font-medium w-12 text-center">{quantity}</span>
                       <button
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        onClick={() => setQuantity(Math.min(stock, quantity + 1))}
                         className="p-2 rounded-lg border-2 border-gray-200 hover:border-[#3B82F6] transition-colors"
                       >
                         <Plus className="w-4 h-4" />
