@@ -19,27 +19,89 @@ const generateDefaultProducts = (collectionImages: string[]): any[] => {
   const products: any[] = [];
   const images = collectionImages.length > 0 ? collectionImages : defaultCollectionImages;
 
-  const names = [
-    'Conjunto Urbano', 'Set Deportivo', 'Kit Casual', 'Outfit Street',
-    'Conjunto Premium', 'Set Fashion', 'Kit Elegante', 'Outfit Modern',
-    'Conjunto Elite', 'Set Luxury'
+  const productData = [
+    {
+      name: 'Conjunto Urbano Completo',
+      basePrice: 189900,
+      originalPrice: 249900,
+      colors: ['#000000', '#1F2937', '#3B82F6'],
+      image: 'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=400'
+    },
+    {
+      name: 'Sudadera Oversize Gris',
+      basePrice: 119900,
+      originalPrice: undefined,
+      colors: ['#9CA3AF', '#6B7280', '#D1D5DB'],
+      image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400'
+    },
+    {
+      name: 'Set Premium Deportivo',
+      basePrice: 159900,
+      originalPrice: 219900,
+      colors: ['#000000', '#3B82F6', '#FFFFFF'],
+      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400'
+    },
+    {
+      name: 'Outfit Street Modern',
+      basePrice: 179900,
+      originalPrice: 249900,
+      colors: ['#1F2937', '#000000', '#6B7280'],
+      image: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=400'
+    },
+    {
+      name: 'Conjunto Elite Fashion',
+      basePrice: 199900,
+      originalPrice: 299900,
+      colors: ['#3B82F6', '#000000', '#FFFFFF'],
+      image: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400'
+    },
+    {
+      name: 'Set Casual Elegante',
+      basePrice: 149900,
+      originalPrice: 199900,
+      colors: ['#6B7280', '#D1D5DB', '#000000'],
+      image: 'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=400'
+    },
+    {
+      name: 'Outfit Modern Minimalista',
+      basePrice: 169900,
+      originalPrice: 229900,
+      colors: ['#FFFFFF', '#000000', '#9CA3AF'],
+      image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400'
+    },
+    {
+      name: 'Conjunto Premium Urbano',
+      basePrice: 189900,
+      originalPrice: 279900,
+      colors: ['#000000', '#3B82F6', '#6B7280'],
+      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400'
+    },
+    {
+      name: 'Set Fashion Exclusivo',
+      basePrice: 209900,
+      originalPrice: 309900,
+      colors: ['#3B82F6', '#000000', '#1F2937'],
+      image: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=400'
+    },
+    {
+      name: 'Outfit Luxury Completo',
+      basePrice: 219900,
+      originalPrice: 319900,
+      colors: ['#000000', '#6B7280', '#3B82F6'],
+      image: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400'
+    }
   ];
 
-  const adjectives = ['Negro', 'Gris', 'Azul', 'Beige', 'Carbón', 'Navy', 'Plata', 'Oscuro', 'Elegante', 'Premium'];
-
-  for (let i = 0; i < 10; i++) {
-    const hasDiscount = Math.random() > 0.7;
-    const basePrice = Math.floor(Math.random() * 100000) + 120000;
-
+  productData.forEach((data, index) => {
     products.push({
-      id: `default-${i + 1}`,
-      name: `${names[i % names.length]} ${adjectives[i % adjectives.length]}`,
-      price: basePrice,
-      originalPrice: hasDiscount ? Math.floor(basePrice * 1.5) : undefined,
-      image: images[i % images.length],
-      colors: ['#3B82F6', '#000000', '#FFFFFF'].slice(0, Math.floor(Math.random() * 3) + 1),
+      id: `default-${index + 1}`,
+      name: data.name,
+      price: data.basePrice,
+      originalPrice: data.originalPrice,
+      image: data.image,
+      colors: data.colors,
     });
-  }
+  });
 
   return products;
 };

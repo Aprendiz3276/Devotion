@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Search, Shield, User, Mail, Calendar, Ban, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Search, Shield, User, Mail, Calendar, Ban, CheckCircle, Plus, X } from 'lucide-react';
 import { User as UserType } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 
@@ -11,10 +11,18 @@ interface ExtendedUser extends UserType {
   totalSpent?: number;
 }
 
+interface NewUserForm {
+  name: string;
+  email: string;
+}
+
 export function AdminUsers() {
   const [users, setUsers] = useState<ExtendedUser[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUserForm, setNewUserForm] = useState<NewUserForm>({ name: '', email: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -24,7 +32,7 @@ export function AdminUsers() {
     // Usuarios administradores del sistema
     const adminUser: ExtendedUser = {
       id: '1',
-      email: 'admin@devotion.com',
+      email: 'devotionstore8@gmail.com',
       name: 'Administrador DEVOTION',
       role: 'admin',
       avatar: 'https://ui-avatars.com/api/?name=Admin&background=3B82F6&color=fff',
@@ -34,6 +42,9 @@ export function AdminUsers() {
       totalOrders: 0,
       totalSpent: 0,
     };
+
+    // Cargar usuarios registrados desde localStorage
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
 
     // Cargar clientes desde localStorage (órdenes de WhatsApp)
     const orders = JSON.parse(localStorage.getItem('adminOrders') || '[]');
@@ -52,7 +63,7 @@ export function AdminUsers() {
           id: `customer-${customerEmails.size}`,
           email: order.customerEmail || 'cliente@example.com',
           name: order.customerName || 'Cliente',
-          role: 'admin', // Todos son admin ahora
+          role: 'admin',
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(order.customerName || 'Cliente')}&background=3B82F6&color=fff`,
           createdAt: order.date || new Date().toISOString(),
           status: 'active',
@@ -63,7 +74,70 @@ export function AdminUsers() {
       }
     });
 
-    setUsers([adminUser, ...customerUsers]);
+    setUsers([adminUser, ...registeredUsers, ...customerUsers]);
+  };
+
+  const handleAddUser = async () => {
+    if (!newUserForm.name.trim() || !newUserForm.email.trim()) {
+      toast.error('Por favor completa todos los campos');
+      return;
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newUserForm.email)) {
+      toast.error('Email inválido');
+      return;
+    }
+
+    // Verificar email duplicado
+    if (users.some(u => u.email === newUserForm.email)) {
+      toast.error('Este email ya está registrado');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const newUser: ExtendedUser = {
+        id: `user-${Date.now()}`,
+        email: newUserForm.email.toLowerCase(),
+        name: newUserForm.name.trim(),
+        role: 'admin',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newUserForm.name)}&background=3B82F6&color=fff`,
+        createdAt: new Date().toISOString(),
+        status: 'active',
+        lastLogin: new Date().toISOString(),
+        totalOrders: 0,
+        totalSpent: 0,
+      };
+
+      // Cargar usuarios registrados actuales
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      registeredUsers.push(newUser);
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+      // Crear notificación
+      const notifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+      notifications.unshift({
+        id: Date.now().toString(),
+        type: 'user',
+        title: 'Nuevo usuario registrado',
+        message: `${newUser.name} (${newUser.email}) se ha registrado en la plataforma`,
+        date: new Date().toISOString(),
+        read: false,
+        priority: 'medium',
+      });
+      localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+
+      // Actualizar usuarios
+      setUsers([...users, newUser]);
+      setNewUserForm({ name: '', email: '' });
+      setIsModalOpen(false);
+      toast.success(`Usuario "${newUser.name}" registrado exitosamente`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleUserStatus = (userId: string) => {
@@ -99,6 +173,13 @@ export function AdminUsers() {
           <h3 className="text-2xl font-serif text-gray-800">Gestión de Usuarios</h3>
           <p className="text-gray-600 text-sm mt-1">{users.length} usuarios registrados</p>
         </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-[#3B82F6] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          Registrar Cliente
+        </button>
       </div>
 
       {/* Filters */}
@@ -292,6 +373,86 @@ export function AdminUsers() {
           )}
         </div>
       </div>
+
+      {/* Modal Registrar Usuario */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-2xl z-[201] p-6"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-serif text-gray-800">Registrar Cliente</h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <div className="space-y-4">
+                {/* Nombre */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre Completo *
+                  </label>
+                  <input
+                    type="text"
+                    value={newUserForm.name}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                    placeholder="Ej: María González"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent outline-none"
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={newUserForm.email}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                    placeholder="Ej: maria@ejemplo.com"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent outline-none"
+                  />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleAddUser}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2.5 bg-[#3B82F6] text-white rounded-lg hover:bg-[#2563EB] transition-colors font-medium disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Registrando...' : 'Registrar'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

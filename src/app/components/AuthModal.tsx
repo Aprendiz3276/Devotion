@@ -101,7 +101,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-[#3B82F6] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
-                        placeholder="admin@devotion.com"
+                        placeholder="devotionstore8@gmail.com"
                         required
                       />
                     </div>
@@ -130,15 +130,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-xs text-blue-800">
-                      <strong>Credenciales de acceso:</strong><br/>
-                      Email: admin@devotion.com<br/>
-                      Contraseña: admin123
-                    </p>
                   </div>
 
                   {/* Submit Button */}

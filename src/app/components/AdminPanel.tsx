@@ -10,7 +10,6 @@ import {
   Settings,
   LogOut,
   Menu,
-  Image,
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { AdminDashboard } from './admin/AdminDashboard';
@@ -19,7 +18,6 @@ import { AdminOrders } from './admin/AdminOrders';
 import { AdminUsers } from './admin/AdminUsers';
 import { AdminNotifications } from './admin/AdminNotifications';
 import { AdminSettings } from './admin/AdminSettings';
-import { AdminImages } from './admin/AdminImages';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -28,7 +26,7 @@ interface AdminPanelProps {
 
 export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'notifications' | 'settings' | 'images'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'notifications' | 'settings'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const menuItems = [
@@ -38,7 +36,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     { id: 'users', label: 'Usuarios', icon: Users },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'settings', label: 'Configuración', icon: Settings },
-    { id: 'images', label: 'Imágenes', icon: Image },
   ] as const;
 
   const handleLogout = () => {
@@ -167,7 +164,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     {activeTab === 'users' && <AdminUsers />}
                     {activeTab === 'notifications' && <AdminNotifications />}
                     {activeTab === 'settings' && <AdminSettings />}
-                    {activeTab === 'images' && <AdminImages />}
                   </motion.div>
                 </AnimatePresence>
               </div>

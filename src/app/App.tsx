@@ -10,24 +10,27 @@ import { WhatsAppButton } from './components/WhatsAppButton';
 import { Toaster } from './components/ui/sonner';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { SearchProvider } from './context/SearchContext';
 
 export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen overflow-x-hidden">
-          <Header />
-          <main className="overflow-x-hidden">
-            <HeroSection />
-            <OffersSection />
-            <CatalogSection />
-            <CollectionsSection />
-            <ContactSection />
-          </main>
-          <Footer />
-          <WhatsAppButton />
-          <Toaster />
-        </div>
+        <SearchProvider>
+          <div className="min-h-screen overflow-x-hidden">
+            <Header />
+            <main className="overflow-x-hidden">
+              <HeroSection />
+              <OffersSection />
+              <CatalogSection />
+              <CollectionsSection />
+              <ContactSection />
+            </main>
+            <Footer />
+            <WhatsAppButton />
+            <Toaster />
+          </div>
+        </SearchProvider>
       </CartProvider>
     </AuthProvider>
   );

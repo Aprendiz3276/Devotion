@@ -21,8 +21,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Solo credenciales de administrador
 const ADMIN_CREDENTIALS = {
-  email: 'admin@devotion.com',
-  password: 'admin123',
+  email: 'devotionstore8@gmail.com',
+  password: 'Devotion2610',
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {

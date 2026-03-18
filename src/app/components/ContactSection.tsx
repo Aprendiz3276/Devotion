@@ -171,14 +171,14 @@ export function ContactSection() {
             {/* Map - More compact and responsive */}
             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl h-32 sm:h-40 md:h-48 shadow-md overflow-hidden relative">
               <iframe
-                title="Ubicación Tuluá"
-                src="https://www.google.com/maps?q=Tulu%C3%A1+Valle+del+Cauca&output=embed"
+                title="CC Comercial La Herradura Tuluá"
+                src="https://www.google.com/maps?q=C.C+Comercial+La+Herradura+Tulu%C3%A1+Valle&output=embed"
                 allowFullScreen
                 loading="lazy"
                 className="w-full h-full"
               />
-              <div className="absolute bottom-2 left-2 bg-white/80 text-xs text-gray-700 px-2 py-1 rounded-lg shadow-sm">
-                Tuluá, Valle del Cauca
+              <div className="absolute bottom-2 left-2 bg-white/80 text-xs text-gray-700 px-2 py-1 rounded-lg shadow-sm font-semibold">
+                C.C La Herradura - Tuluá, Valle
               </div>
             </div>
           </motion.div>
