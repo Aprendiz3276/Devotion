@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, ShoppingCart, Heart, Eye } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { loadProductsBySection, Product } from '../utils/productLoader';
+import { ProductQuickView } from './ProductQuickView';
 import { toast } from 'sonner';
 import { useCart } from '../context/CartContext';
 
@@ -109,7 +110,47 @@ const generateDefaultProducts = (collectionImages: string[]): any[] => {
 export function CollectionsSection() {
   const [hoveredCollection, setHoveredCollection] = useState<number | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+  const [showQuickView, setShowQuickView] = useState(false);
   const { addToCart } = useCart();
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      try {
+        setFavorites(JSON.parse(savedFavorites));
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      }
+    }
+  }, []);
+
+  // Save favorites to localStorage
+  const toggleFavorite = (productId: string) => {
+    setFavorites((prev) => {
+      const updated = prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId];
+      localStorage.setItem('favorites', JSON.stringify(updated));
+      return updated;
+    });
+    
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      if (favorites.includes(productId)) {
+        toast.info('Removido de favoritos', { description: product.name });
+      } else {
+        toast.success('Agregado a favoritos ❤️', { description: product.name });
+      }
+    }
+  };
+
+  const handleQuickView = (product: any) => {
+    setQuickViewProduct(product);
+    setShowQuickView(true);
+  };
 
   const loadCollectionProducts = () => {
     // Try to load from admin products first
@@ -232,10 +273,20 @@ export function CollectionsSection() {
                     >
                       <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
-                    <button className="p-2 sm:p-2.5 bg-white hover:bg-red-500 text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg">
-                      <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <button 
+                      onClick={() => toggleFavorite(product.id)}
+                      className={`p-2 sm:p-2.5 rounded-full transition-all transform hover:scale-110 shadow-lg ${
+                        favorites.includes(product.id)
+                          ? 'bg-red-500 text-white'
+                          : 'bg-white hover:bg-red-500 text-gray-800 hover:text-white'
+                      }`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
                     </button>
-                    <button className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg">
+                    <button 
+                      onClick={() => handleQuickView(product)}
+                      className="p-2 sm:p-2.5 bg-white hover:bg-[#3B82F6] text-gray-800 hover:text-white rounded-full transition-all transform hover:scale-110 shadow-lg"
+                    >
                       <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
@@ -289,6 +340,13 @@ export function CollectionsSection() {
           </div>
         )}
       </div>
+
+      {/* Quick View Modal */}
+      <ProductQuickView 
+        product={quickViewProduct}
+        isOpen={showQuickView}
+        onClose={() => setShowQuickView(false)}
+      />
     </section>
   );
 }
