@@ -55,20 +55,16 @@ export function Footer() {
             </p>
             <div className="flex gap-3 sm:gap-4">
               <a
-                href="https://instagram.com/moda.devotion"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:devotionstore8@gmail.com"
                 className="p-2 bg-white/10 hover:bg-gradient-to-r hover:from-[#3B82F6] hover:to-[#2563EB] rounded-full transition-all"
-                aria-label="Instagram"
+                aria-label="Email"
               >
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
               <a
-                href="https://facebook.com/moda.devotion"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:devotionstore8@gmail.com"
                 className="p-2 bg-white/10 hover:bg-gradient-to-r hover:from-[#3B82F6] hover:to-[#2563EB] rounded-full transition-all"
-                aria-label="Facebook"
+                aria-label="Email"
               >
                 <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
@@ -83,7 +79,7 @@ export function Footer() {
               </a>
             </div>
             <p className="text-gray-400 mt-3 text-xs">
-              Síguenos en Instagram: <a href="https://instagram.com/moda.devotion" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">@moda.devotion</a>
+              Correo: <a href="mailto:devotionstore8@gmail.com" className="text-[#3B82F6] hover:underline">devotionstore8@gmail.com</a>
             </p>
           </div>
 

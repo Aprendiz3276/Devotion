@@ -11,8 +11,15 @@ export function ContactSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('¡Gracias por contactarnos! Te responderemos pronto.');
+
+    const mailto = `mailto:devotionstore8@gmail.com?subject=${encodeURIComponent(
+      `Mensaje desde el sitio web de ${formData.name}`
+    )}&body=${encodeURIComponent(
+      `Nombre: ${formData.name}\nCorreo: ${formData.email}\n\nMensaje:\n${formData.message}`
+    )}`;
+
+    window.location.href = mailto;
+    alert('Se abrirá tu correo para enviar el mensaje.');
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -78,7 +85,7 @@ export function ContactSection() {
                     onChange={handleChange}
                     required
                     className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] transition-all text-xs sm:text-sm"
-                    placeholder="tu@email.com"
+                    placeholder="devotionstore8@gmail.com"
                   />
                 </div>
               </div>
@@ -123,8 +130,8 @@ export function ContactSection() {
                   </div>
                   <h3 className="text-xs sm:text-sm font-semibold">Email</h3>
                 </div>
-                <p className="text-[10px] sm:text-xs text-gray-600 leading-relaxed break-all">@moda.devotion</p>
-                <p className="text-[10px] sm:text-xs text-gray-600 break-all">contacto@devotion.com</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 leading-relaxed break-all">devotionstore8@gmail.com</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 break-all">devotionstore8@gmail.com</p>
               </div>
 
               <div className="bg-white rounded-xl p-3 sm:p-4 shadow-md hover:shadow-lg transition-shadow">
@@ -151,20 +158,7 @@ export function ContactSection() {
 
               <div className="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] rounded-xl p-3 sm:p-4 shadow-md text-white">
                 <h3 className="text-xs sm:text-sm font-semibold mb-2">Horario</h3>
-                <div className="space-y-1 text-[10px] sm:text-xs">
-                  <div className="flex justify-between gap-1">
-                    <span>Lun - Vie:</span>
-                    <span>9AM-6PM</span>
-                  </div>
-                  <div className="flex justify-between gap-1">
-                    <span>Sábado:</span>
-                    <span>10AM-4PM</span>
-                  </div>
-                  <div className="flex justify-between gap-1">
-                    <span>Domingo:</span>
-                    <span>Cerrado</span>
-                  </div>
-                </div>
+                <p className="text-[10px] sm:text-xs text-gray-200">De 11 am a 8pm todos los días</p>
               </div>
             </div>
 
