@@ -158,7 +158,11 @@ export function ContactSection() {
 
               <div className="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] rounded-xl p-3 sm:p-4 shadow-md text-white">
                 <h3 className="text-xs sm:text-sm font-semibold mb-2">Horario</h3>
-                <p className="text-[10px] sm:text-xs text-gray-200">De 11 am a 8pm todos los días</p>
+                <div className="text-[10px] sm:text-xs text-gray-200 space-y-1">
+                  <p className="font-semibold">Horarios de atención</p>
+                  <p>LUNES A LUNES</p>
+                  <p>DE 11:00 AM a 8:00 PM</p>
+                </div>
               </div>
             </div>
 
